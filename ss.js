@@ -1,21 +1,7 @@
 "use strict"
 
 class ScrollSelector {
-    /**
-     * 
-     * @param { value, options: [ { name, options : [] } ] } data 
-     */
     constructor(data, cb) {
-
-        /*
-        var span_top = document.createElement( 'span' );
-        span_top.style = "display: block; width: 100%; height: 2px; background-color: #cdcdcd; top: 77px; left: 0; position: absolute;";
-        this.$el.appendChild( span_top );
-        span_top = document.createElement( 'span' );
-        span_top.style = "display: block; width: 100%; height: 2px; background-color: #cdcdcd; bottom: 77px; left: 0; position: absolute;";
-        this.$el.appendChild( span_top );
-        */
-
         $('<div id="scroll-selector-el"><div class="inner"></div><span class="scroll-selector-selected-top-hr"></span><span class="scroll-selector-selected-bottom-hr"></span><div class="scroll-selector-operator"><a class="scroll-selector-operator-cancel">取消</a><a class="scroll-selector-operator-submit">确定</a></div></div>')
             .appendTo('body');
 
@@ -49,6 +35,17 @@ class ScrollSelector {
             var li = $(`.scroll-selector-options-level-${level} li:eq(${i})`);
             li.css('transform', `translate(0, ${this.top_base + delta * 20 * 1.8 - Math.max( -200, Math.min(200, ((delta > 0 ? 1 : -1) * delta * delta * 3)))}px ) scale( ${1 - Math.abs(delta) * .03}, ${1 - Math.abs(delta) * .1} )`);
             li.css('opacity', 0.3 + this._normal_distribution(delta * 3.2));
+
+            if (i == group.selected && opt.sub) {
+                var t = level + 1;
+                
+                while( $( '.scroll-selector-options-level-' + t ).length > 0 ) {
+                    $( '.scroll-selector-options-level-' + t ).remove();
+                    t++;
+                }
+
+                this.append_options( opt.sub, level + 1 );
+            }
         }
     }
 
@@ -57,7 +54,8 @@ class ScrollSelector {
         var _this = this;
 
         level = level || 0;
-        var ul = $(`<ul class="scroll-selector-options-level-${level}"></ul>`);
+        $(`<ul class="scroll-selector-options-level-${level}"></ul>`).appendTo($('#scroll-selector-el .inner'));
+        var ul = $( `.scroll-selector-options-level-${level}` );
         for (let i in group.options) {
             var opt = group.options[i];
             var delta = i - group.selected;
@@ -67,9 +65,12 @@ class ScrollSelector {
             li.css('opacity', 0.3 + this._normal_distribution(delta * 3.2));
             li.html(opt.name);
             li.appendTo(ul);
+
+            if (i == group.selected && opt.sub) {
+                this.append_options( opt.sub, level + 1);
+            }
         }
         ul
-            .appendTo($('#scroll-selector-el .inner'))
             .on('touchstart', function (e) {
                 e.preventDefault();
                 e.stopPropagation();

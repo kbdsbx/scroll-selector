@@ -6,7 +6,14 @@
 * 当我们最终拿到客户外包给设计公司的设计稿时
 * 我哭了
 * 
-* 躲得过初一躲不过十五
+* （躲得过初一躲不过十五 :<
+
+## 注意
+
+* 目前只支持静态备选项以及联动备选项，动态的之后会开发
+* 别忘了引入样式文件
+* 编译成ES5请使用额外插件
+* 太多联动会导致窗口拥挤，暂不支持选择器换行
 
 ### 接口
 
@@ -94,14 +101,87 @@ new ScrollSelector(select_profession_option, function (value) {
      **/
 });
 ```
+![JobSelector](https://github.com/kbdsbx/scroll-selector/raw/master/2017-12-27_151447.png)
 
-![Colors](https://github.com/kbdsbx/scroll-selector/raw/master/2017-12-27_151447.png)
+例如：
+```javascript
 
+var select_area_option = {
+    selected : 1,
+    options: [{
+        name : "上海市",
+        value : "shs",
+        sub : {
+            selected : 0,
+            options : [{
+                name : "市辖区",
+                value : "sxq",
+                sub : {
+                    selected : 0,
+                    options : [{
+                        name : "杨浦区",
+                        value : "ypq",
+                    }]
+                }
+            }]
+        }
+    }, {
+        name : "北京市",
+        value : "bjs",
+        sub : {
+            selected : 1,
+            options : [{
+                name : "市辖区",
+                value : "sxq",
+                sub : {
+                    selected : 0,
+                    options : [{
+                        name : "东城区",
+                        value : "dcq",
+                    }, {
+                        name : "西城区",
+                        value : "xcq",
+                    }]
+                }
+            }, {
+                name : "市郊区",
+                value : "sjq",
+                sub : {
+                    selected : 1,
+                    options : [{
+                        name : "东郊区",
+                        value : "djq",
+                    }, {
+                        name : "西郊区",
+                        value : "xjq",
+                    }]
+                }
+            }]
+        }
+    }]
+}
+function select_area(self) {
+    new ScrollSelector(select_area_option, function(value) {
+    /**
+     * value : [{
+     *     name: "北京市",
+     *     value: "bjs",
+     * }, {
+     *     name: "市辖区",
+     *     value: "sxq",
+     * }, {
+     *     name: "西城区",
+     *     value: "xcq",
+     * }]
+     **/
+    })
+}
+```
+![CitySelector](https://github.com/kbdsbx/scroll-selector/raw/master/2017-12-27_163021.png)
 
 ### 更多
 
-注入还在开发
-级联还在开发，先让我上传备份顺带装个逼
+注入还在开发，先让我上传备份顺带装个逼
 
 ### 版权声明
 GNU v3
