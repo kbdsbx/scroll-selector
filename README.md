@@ -1,5 +1,5 @@
 # Scroll-Selector
-### 描述
+### 背景
 
 * 曾经我们的设计建议我在手机上使用这种方式选择单选值以及联动值
 * 我以麻烦为理由拒绝
@@ -8,12 +8,21 @@
 * 
 * （躲得过初一躲不过十五 :<
 
-## 注意
+### 注意
 
-* 目前只支持静态备选项以及联动备选项，动态的之后会开发
 * 别忘了引入样式文件
+* 别忘了引入jQuery
 * 编译成ES5请使用额外插件
 * 太多联动会导致窗口拥挤，暂不支持选择器换行
+* 动态备选项生成器``option_maker``会覆盖传入的``options``值，两者存在一个即可
+
+### 功能
+
+* 固定备选列表的单项选择
+* 固定备选列表的联动选择，联动级别不限
+* 有限动态备选列表的单项选择
+* 有限动态备选列表的联动选择，联动级别不限
+* 暂不支持无限动态备选列表（例如无限翻页的日期选择器）
 
 ### 接口
 
@@ -35,10 +44,17 @@ new ScrollSelector( {
                 name : "联动展示项",
                 value : "联动值",
                 // value : "任何值",
-                // move-value : "追加的任何值",
+                // more-value : "追加的任何值",
             } ],
         }
-    } ] }, function( value ) {
+    } ],
+    /**
+     * @param values 所有上级的值
+     * @param level 当前选择器的级别
+     * @return { selected: 0, options : [ { ... } ] } 返回生成的默认值与备选值列表
+     **/
+    option_maker : function( values, level ) {
+    } }, function( value ) {
     /**
      * value : [ {
      *      name : "选择的一级展示项",
@@ -104,7 +120,7 @@ new ScrollSelector(select_profession_option, function (value) {
 ![JobSelector](https://github.com/kbdsbx/scroll-selector/raw/master/2017-12-27_151447.png)
 
 例如：
-```javascript
+```javascrip
 
 var select_area_option = {
     selected : 1,
@@ -160,28 +176,79 @@ var select_area_option = {
         }
     }]
 }
-function select_area(self) {
-    new ScrollSelector(select_area_option, function(value) {
-    /**
-     * value : [{
-     *     name: "北京市",
-     *     value: "bjs",
-     * }, {
-     *     name: "市辖区",
-     *     value: "sxq",
-     * }, {
-     *     name: "西城区",
-     *     value: "xcq",
-     * }]
-     **/
-    })
-}
+new ScrollSelector(select_area_option, function(value) {
+/**
+ * value : [{
+ *     name: "北京市",
+ *     value: "bjs",
+ * }, {
+ *     name: "市辖区",
+ *     value: "sxq",
+ * }, {
+ *     name: "西城区",
+ *     value: "xcq",
+ * }]
+ **/
+})
 ```
 ![CitySelector](https://github.com/kbdsbx/scroll-selector/raw/master/2017-12-27_163021.png)
 
+例如：
+```javascript
+new ScrollSelector( { option_maker : function( values, level ) {
+    if ( level == 0 ) {
+        var t = { selected : 0, options: [] };
+        for ( var i = (new Date()).getFullYear(); i >= (new Date()).getFullYear() - 99; i-- ) {
+            t.options.push( { name : i + "年", value : i } );
+        }
+        return t;
+    }
+
+    if ( level == 1 ) {
+        var t = { selected : 0, options : [] };
+        for ( var i = 1; i <= 12 ; i++ ) {
+            t.options.push( { name : i + "月", value : i } );
+        }
+        return t;
+    }
+
+    if ( level == 2 ) {
+        var year = values[0].value;
+        var month = values[1].value;
+        var day = 30;
+        if ( [1, 2, 5, 7, 8, 10, 12].indexOf( month ) != -1 ) {
+            day = 31;
+        }
+        if ( 2 == month ) {
+            day = ( !( year % 100) && ! (year % 400) || (year % 100) && !(year % 4 ) ) ? 29 || 28;
+        }
+
+        var t = { selected : 0, options : [] };
+        for ( var i = 1; i <= day; i++ ) {
+            t.options.push( { name : i + "日", value : i } );
+        }
+        return t;
+    }
+} }, function(value) {
+/**
+ * value : [{
+ *     name: "2017年",
+ *     value: 2017,
+ * }, {
+ *     name: "12月",
+ *     value: 12,
+ * }, {
+ *     name: "28日",
+ *     value: 28,
+ * }]
+ **/
+} )
+```
+![DateSelector](https://github.com/kbdsbx/scroll-selector/raw/master/2017-12-28_154742.png)
+
 ### 更多
 
-注入还在开发，先让我上传备份顺带装个逼
+无限动态备选项设置要考虑一下到底如何去做，如果有需要的话，没需要就改改Bug，不再更新了
 
 ### 版权声明
-GNU v3
+[GPL v3](https://github.com/kbdsbx/scroll-selector/blob/master/LICENSE)

@@ -46,14 +46,34 @@ class ScrollSelector {
 
                 this.append_options( opt.sub, level + 1 );
             }
+            if (i == group.selected && group.option_maker) {
+                var t = level + 1;
+                while( $( '.scroll-selector-options-level-' + t ).length > 0 ) {
+                    $( '.scroll-selector-options-level-' + t ).remove();
+                    t++;
+                }
+                opt.sub = {};
+                opt.sub.option_maker = group.option_maker;
+                this.append_options(opt.sub, level + 1);
+            }
         }
     }
 
     append_options(group, level) {
         var top_base = 90.0;
         var _this = this;
-
+        group.selected = group.selected || 0;
         level = level || 0;
+
+        if ( group.option_maker ) {
+            var g = group.option_maker.call( this, this.make_values( this.data ), level );
+            if ( ! g ) {
+                return;
+            }
+            group.options = g.options;
+            group.selected = g.selected || 0;
+        }
+
         $(`<ul class="scroll-selector-options-level-${level}"></ul>`).appendTo($('#scroll-selector-el .inner'));
         var ul = $( `.scroll-selector-options-level-${level}` );
         for (let i in group.options) {
@@ -67,7 +87,13 @@ class ScrollSelector {
             li.appendTo(ul);
 
             if (i == group.selected && opt.sub) {
-                this.append_options( opt.sub, level + 1);
+                this.append_options(opt.sub, level + 1);
+            }
+
+            if (i == group.selected && group.option_maker) {
+                opt.sub = {};
+                opt.sub.option_maker = group.option_maker;
+                this.append_options(opt.sub, level + 1);
             }
         }
         ul
@@ -138,11 +164,14 @@ class ScrollSelector {
     make_values(group, values) {
         values = values || [];
 
-        values.push(group.options[parseInt(group.selected)]);
+        if ( ! group.options ) {
+            return;
+        }
+        values.push(group.options[parseInt(group.selected || 0)]);
 
         // 如果有级联
-        if (group.options[parseInt(group.selected)].sub) {
-            this.make_values(group.options[parseInt(group.selected)].sub, values);
+        if (group.options && group.options[parseInt(group.selected) || 0].sub) {
+            this.make_values(group.options[parseInt(group.selected) || 0].sub, values);
         }
 
         return values;
