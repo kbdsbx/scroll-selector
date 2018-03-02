@@ -2,6 +2,7 @@
 
 class ScrollSelector {
     constructor(data, cb) {
+        this.close();
         $('<div id="scroll-selector-el"><div class="inner"></div><span class="scroll-selector-selected-top-hr"></span><span class="scroll-selector-selected-bottom-hr"></span><div class="scroll-selector-operator"><a class="scroll-selector-operator-cancel">取消</a><a class="scroll-selector-operator-submit">确定</a></div></div>')
             .appendTo('body');
 
@@ -32,9 +33,10 @@ class ScrollSelector {
             var delta = i - group.selected;
 
             level = level || 0;
-            var li = $(`.scroll-selector-options-level-${level} li:eq(${i})`);
-            li.css('transform', `translate(0, ${this.top_base + delta * 20 * 1.8 - Math.max( -200, Math.min(200, ((delta > 0 ? 1 : -1) * delta * delta * 3)))}px ) scale( ${1 - Math.abs(delta) * .03}, ${1 - Math.abs(delta) * .1} )`);
-            li.css('opacity', 0.3 + this._normal_distribution(delta * 3.2));
+            var li = $('.scroll-selector-options-level-' + (level) + ' li:eq(' +(i)+ ')');
+            li.css('transform', 'translate(0, ' + (this.top_base + delta * 20 * 1.8 - Math.max( -200, Math.min(200, ((delta > 0 ? 1 : -1) * delta * delta * 3)))) + 'px ) scale( '+(1 - Math.abs(delta) * .03)+', '+(1 - Math.abs(delta) * .1)+' )')
+                .css('-webkit-transform', 'translate(0, ' + (this.top_base + delta * 20 * 1.8 - Math.max( -200, Math.min(200, ((delta > 0 ? 1 : -1) * delta * delta * 3)))) + 'px ) scale( '+(1 - Math.abs(delta) * .03)+', '+(1 - Math.abs(delta) * .1)+' )')
+                .css('opacity', 0.3 + this._normal_distribution(delta * 3.2));
 
             if (i == group.selected && opt.sub) {
                 var t = level + 1;
@@ -74,15 +76,16 @@ class ScrollSelector {
             group.selected = g.selected || 0;
         }
 
-        $(`<ul class="scroll-selector-options-level-${level}"></ul>`).appendTo($('#scroll-selector-el .inner'));
-        var ul = $( `.scroll-selector-options-level-${level}` );
+        $('<ul class="scroll-selector-options-level-'+(level)+'"></ul>').appendTo($('#scroll-selector-el .inner'));
+        var ul = $( '.scroll-selector-options-level-'+(level) );
         for (let i in group.options) {
             var opt = group.options[i];
             var delta = i - group.selected;
 
             var li = $('<li></li>');
-            li.css('transform', `translate(0, ${this.top_base + delta * 20 * 1.8 - Math.max( -200, Math.min(200, ((delta > 0 ? 1 : -1) * delta * delta * 3)))}px ) scale( ${1 - Math.abs(delta) * .03}, ${1 - Math.abs(delta) * .1} )`);
-            li.css('opacity', 0.3 + this._normal_distribution(delta * 3.2));
+            li.css('transform', 'translate(0, ' + (this.top_base + delta * 20 * 1.8 - Math.max( -200, Math.min(200, ((delta > 0 ? 1 : -1) * delta * delta * 3)))) + 'px ) scale( '+(1 - Math.abs(delta) * .03)+', '+(1 - Math.abs(delta) * .1)+' )')
+                .css('-webkit-transform', 'translate(0, ' + (this.top_base + delta * 20 * 1.8 - Math.max( -200, Math.min(200, ((delta > 0 ? 1 : -1) * delta * delta * 3)))) + 'px ) scale( '+(1 - Math.abs(delta) * .03)+', '+(1 - Math.abs(delta) * .1)+' )')
+                .css('opacity', 0.3 + this._normal_distribution(delta * 3.2));
             li.html(opt.name);
             li.appendTo(ul);
 
@@ -97,6 +100,10 @@ class ScrollSelector {
             }
         }
         ul
+            .on('click', function(e){
+                e.preventDefault();
+                e.stopPropagation();
+            })
             .on('touchstart', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -138,7 +145,7 @@ class ScrollSelector {
     touch_end(event, group, level) {
         var dec = group.selected - parseInt(group.selected);
         var target = parseInt(group.selected) + (dec > .5 ? 1 : 0);
-        var li = $(`.scroll-selector-options-level-${level} li`);
+        var li = $('.scroll-selector-options-level-'+(level)+' li');
         li.addClass('transition');
         group.selected = target;
         this.update_options(group, level);
@@ -148,7 +155,7 @@ class ScrollSelector {
     }
 
     wheel(event, group, level) {
-        var li = $(`.scroll-selector-options-level-${level} li`);
+        var li = $('.scroll-selector-options-level-'+(level)+' li');
         li.addClass('transition');
         group.selected = Math.max(0, Math.min(group.options.length - 1, group.selected + (event.originalEvent.deltaY > 0 ? 1 : -1)));
         this.update_options(group, level);
