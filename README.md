@@ -120,7 +120,7 @@ new ScrollSelector(select_profession_option, function (value) {
 ![JobSelector](https://github.com/kbdsbx/scroll-selector/raw/master/2017-12-27_151447.png)
 
 例如：
-```javascrip
+```javascript
 
 var select_area_option = {
     selected : 1,
